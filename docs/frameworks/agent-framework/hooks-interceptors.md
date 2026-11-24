@@ -226,6 +226,8 @@ ReactAgent agent = ReactAgent.builder()
 
 `ModelRetryInterceptor` 在模型调用失败时按重试策略再次调用模型。当前实现支持同步调用，也处理流式调用在未输出任何 chunk 前失败的重试。
 
+失败分类、运行截止时间、默认值和当前包名见[模型调用重试](./model-retry)。
+
 <Code
   language="java"
   title="ModelRetryInterceptor 模型重试示例"
