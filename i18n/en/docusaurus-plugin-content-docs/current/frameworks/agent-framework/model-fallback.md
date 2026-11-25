@@ -87,8 +87,8 @@ The boundary only applies when the interceptor receives a **streaming** `ModelRe
   - A failure before the first delta switches cleanly; the caller only sees the backup's text
     (example scenario 7).
   - A failure after partial deltas **still switches**. The backup's deltas are appended to the
-    same message ID, so the delta view shows the two models concatenated, for example `Hel` +
-    `Done` shown as `HelDone`; the complete snapshot with the same ID then replaces it with
+    same message ID, so the delta view shows the two models concatenated, for example `Draft` +
+    `Done` shown as `DraftDone`; the complete snapshot with the same ID then replaces it with
     `Done` (example scenario 8).
   - `ModelRetryInterceptor` behaves the same way on this path: a transient failure after partial
     deltas is retried and the new deltas are appended as well (example scenario 9).
@@ -149,10 +149,10 @@ A failed assertion fails the command; it does not depend on `-ea`.
 | 3 Cancellation | The primary throws `CancellationException`; the caller gets the cancellation and the backup is called 0 times. |
 | 4 Combined with retries | Fallback outside, retry inside: 3 primary calls, 1 backup call. |
 | 5 Stream boundary, failure before output | Drives the interceptor with a streaming handler (the graph engine's shape); clean switch to the backup. |
-| 6 Stream boundary, failure after output | Same, failing after `Hel`: the stream ends with the error, the backup is called 0 times. |
+| 6 Stream boundary, failure after output | Same, failing after `Draft`: the stream ends with the error, the backup is called 0 times. |
 | 7 Independent ReAct streaming, failure before output | Deltas contain only the backup's `Done`. |
-| 8 Independent ReAct streaming, failure after output | Still switches: deltas `HelDone`, snapshot `Done`. |
-| 9 Independent ReAct streaming, retry after output | Retried: deltas `HelDone`, snapshot `Done`. |
+| 8 Independent ReAct streaming, failure after output | Still switches: deltas `DraftDone`, snapshot `Done`. |
+| 9 Independent ReAct streaming, retry after output | Retried: deltas `DraftDone`, snapshot `Done`. |
 | Graph-based `ReactAgent` end to end | Not tested; scenarios 5 and 6 verify only the interceptor's own streaming contract. |
 
 Sources: [ModelFallbackInterceptor](https://github.com/agentic-ai-java/argi/blob/c6e453f20fcb1c7837d92b321aa18ec5a46ccab6/argi-orchestration/argi-agent-framework/src/main/java/io/github/agentic/ai/agent/orchestration/interceptor/modelfallback/ModelFallbackInterceptor.java),

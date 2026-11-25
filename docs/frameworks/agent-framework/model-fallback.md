@@ -73,7 +73,7 @@ ReActAgent agent = ReActAgent.builder(primaryClient)
   拦截器看不到已经输出过增量，因此：
   - 首个增量之前失败：切换干净，调用方只看到备用模型的文本（示例场景 7）。
   - 输出部分增量之后失败：**仍然会切换**，备用模型的增量追加在同一个消息 ID 后面，
-    增量视图会出现两个模型拼接的文本，例如 `Hel` + `Done` 显示为 `HelDone`；
+    增量视图会出现两个模型拼接的文本，例如 `Draft` + `Done` 显示为 `DraftDone`；
     随后同 ID 的完整快照把它替换为 `Done`（示例场景 8）。
   - `ModelRetryInterceptor` 在这条路径上也一样：输出部分增量后的临时失败会被重试，
     新的增量同样追加在后面（示例场景 9）。
@@ -131,10 +131,10 @@ PASS: non-streaming fallback, exhaustion, cancellation, retry ordering, stream s
 | 3 取消 | 主模型抛出 `CancellationException`，调用方收到取消，备用模型调用 0 次。 |
 | 4 与重试组合 | 回退在外、重试在内：主模型 3 次、备用模型 1 次。 |
 | 5 流式边界：输出前失败 | 直接用流式 handler 驱动拦截器（即 graph 引擎的形态），干净切换到备用模型。 |
-| 6 流式边界：输出后失败 | 同上，输出 `Hel` 后失败，流以错误结束，备用模型调用 0 次。 |
+| 6 流式边界：输出后失败 | 同上，输出 `Draft` 后失败，流以错误结束，备用模型调用 0 次。 |
 | 7 独立 ReAct 流式：输出前失败 | 增量只有备用模型的 `Done`。 |
-| 8 独立 ReAct 流式：输出后失败 | 仍切换，增量为 `HelDone`，快照为 `Done`。 |
-| 9 独立 ReAct 流式：输出后重试 | 重试再次调用，增量为 `HelDone`，快照为 `Done`。 |
+| 8 独立 ReAct 流式：输出后失败 | 仍切换，增量为 `DraftDone`，快照为 `Done`。 |
+| 9 独立 ReAct 流式：输出后重试 | 重试再次调用，增量为 `DraftDone`，快照为 `Done`。 |
 | graph-based `ReactAgent` 端到端 | 未测试；场景 5、6 只验证拦截器本身的流式契约。 |
 
 依据：[ModelFallbackInterceptor 源码](https://github.com/agentic-ai-java/argi/blob/c6e453f20fcb1c7837d92b321aa18ec5a46ccab6/argi-orchestration/argi-agent-framework/src/main/java/io/github/agentic/ai/agent/orchestration/interceptor/modelfallback/ModelFallbackInterceptor.java)、

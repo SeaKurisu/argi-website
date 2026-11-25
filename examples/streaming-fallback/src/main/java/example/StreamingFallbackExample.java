@@ -199,10 +199,10 @@ public final class StreamingFallbackExample {
         check(seen5.equals(List.of("delta:B", "RESPONSE", "complete")), "expected a clean switch, got " + seen5);
 
         // 6. ...and a failure after an event terminates the stream without switching.
-        var primary6 = new ScriptedClient("primary", Step.partial("Hel", new IllegalStateException("mid-stream")));
+        var primary6 = new ScriptedClient("primary", Step.partial("Draft", new IllegalStateException("mid-stream")));
         var backup6 = new ScriptedClient("backup");
         List<String> seen6 = streamThroughInterceptor(fallback(backup6), primary6);
-        check(seen6.equals(List.of("delta:Hel", "error:mid-stream")), "expected termination, got " + seen6);
+        check(seen6.equals(List.of("delta:Draft", "error:mid-stream")), "expected termination, got " + seen6);
         check(backup6.calls.get() == 0, "no switch after output");
 
         // 7. Independent ReActAgent with streamModel(true), failure before any delta:
@@ -218,21 +218,21 @@ public final class StreamingFallbackExample {
         //    interceptor a non-streaming response, so the first-event boundary of
         //    scenario 6 does not apply: the backup is called, its deltas are appended to
         //    the same message ID, and the final snapshot replaces the text.
-        var primary8 = new ScriptedClient("primary", Step.partial("Hel", new IllegalStateException("mid-stream")));
+        var primary8 = new ScriptedClient("primary", Step.partial("Draft", new IllegalStateException("mid-stream")));
         var backup8 = new ScriptedClient("backup", Step.ok("Done"));
         var r8 = run(ReActAgent.builder(primary8).streamModel(true).interceptors(List.of(fallback(backup8))).build(), "s8");
         check(r8.getValue() == null, "should succeed: " + r8.getValue());
         check(backup8.calls.get() == 1, "backup should be called");
-        check(r8.getKey().deltas.equals(Map.of("model-0", "HelDone")), "observed deltas " + r8.getKey().deltas);
+        check(r8.getKey().deltas.equals(Map.of("model-0", "DraftDone")), "observed deltas " + r8.getKey().deltas);
         check(r8.getKey().snapshots.equals(Map.of("model-0", "Done")), "observed snapshots " + r8.getKey().snapshots);
 
         // 9. The same applies to ModelRetryInterceptor on this engine: a transient
         //    failure after a delta is retried and the new deltas are appended.
-        var primary9 = new ScriptedClient("primary", Step.partial("Hel", transientFailure()), Step.ok("Done"));
+        var primary9 = new ScriptedClient("primary", Step.partial("Draft", transientFailure()), Step.ok("Done"));
         var r9 = run(ReActAgent.builder(primary9).streamModel(true).interceptors(List.of(retry())).build(), "s9");
         check(r9.getValue() == null, "should succeed: " + r9.getValue());
         check(primary9.calls.get() == 2, "retry should call again after output");
-        check(r9.getKey().deltas.equals(Map.of("model-0", "HelDone")), "observed deltas " + r9.getKey().deltas);
+        check(r9.getKey().deltas.equals(Map.of("model-0", "DraftDone")), "observed deltas " + r9.getKey().deltas);
         check(r9.getKey().snapshots.equals(Map.of("model-0", "Done")), "observed snapshots " + r9.getKey().snapshots);
 
         System.out.println("PASS: non-streaming fallback, exhaustion, cancellation, retry ordering,"

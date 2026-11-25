@@ -51,8 +51,9 @@ Core base: `c6e453f20fcb1c7837d92b321aa18ec5a46ccab6` (Core `main` at the time o
   Result: 62 tests, zero failures/errors/skips. This is a targeted test run, not a
   full Core test-suite claim.
 - The example's `compile exec:java` passed, then passed again with Maven `-o`.
-- Website `npm run typecheck`, `npm run lint`, `npm run verify:contract` and
-  `npm run build` passed. The build includes both `zh-Hans` and `en`, with broken
+- The checks behind CI's `make lint` passed: markdownlint, yamllint, `npm run lint`
+  and codespell, using the repository's linter configs. Website `npm run typecheck`,
+  `npm run verify:contract` and `npm run build` passed. The build includes both `zh-Hans` and `en`, with broken
   Markdown links treated as errors, followed by search indexing.
 
 No live-provider or end-to-end graph-based `ReactAgent` validation is claimed.
